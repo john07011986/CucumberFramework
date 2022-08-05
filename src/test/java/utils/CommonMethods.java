@@ -4,6 +4,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -27,8 +28,11 @@ public class CommonMethods extends PageInitializers {
         //we will use switch function to initialize browser based on the value in the properties file
         switch (ConfigReader.getProperties("browser")){
             case "chrome":
+                //set headless browser
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.setHeadless(true);
                 WebDriverManager.chromedriver().setup();
-                driver=new ChromeDriver();
+                driver=new ChromeDriver(chromeOptions);
                 break;
             case "firefox":
                 WebDriverManager.firefoxdriver().setup();

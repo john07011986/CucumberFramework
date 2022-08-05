@@ -12,7 +12,8 @@ import org.junit.runner.RunWith;
         glue = "steps",
         dryRun = false,
         monochrome = true,
-        tags = "@Dash",
+
+
 
         //for reports
         plugin={
@@ -22,11 +23,9 @@ import org.junit.runner.RunWith;
                 //pretty will make the output to the consol that reflects only relevant info
 
                 //this plugin is for the jason report, again we will specify destination folder and report file name
-                "json:target/cucumber.json"
-
-
-
-
+                "json:target/cucumber.json",
+                //for extent report
+                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
         }
 
 
