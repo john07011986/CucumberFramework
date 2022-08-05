@@ -1,0 +1,566 @@
+1.  we create feature files and write scenarios -> test/resources/features/xyz.feature
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2. we create step definition files for the scenarious -> test/java/steps/xyz.java
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+3. We create properties file where we define properties for the project (url, login credentials, browsers etc) -->
+/test/resources/config/config.properties
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+
+4.  we create config reader class - this class will contain functions that will read properties
+from xyz.properties file --> test/java/utils/ConfigReader.java
+
+when we create classes for reading data from properties files/ excel files / constant files or any other files --> those
+ classes will go in utils (utilities) package
+
+*  within the configReader.java we will import java.util.Properties class = this class allows us access to the
+properties stored in xyz.properties file and are represented as a hashtable (key value pairs).
+
+ static Properties properties;
+
+     public static Properties readProperties(String  filepath) {
+         return properties;
+     }
+
+ * we will create readProperties() method that will have filepath for the properties file as a param and will return
+ properties values of the file
+
+* inside readProperties() method we will create object of  FileInputStream fileInputStream = new FileInputStream
+(filePath)   to read data from the properties file
+
+* we will also initialize properties variable with the object of the Properties class and pass the file to the
+properties object . This variable will hold all the properties that we read using FileInputStream and we will be able to
+ access those properties through the object of Properties class we have created
+-->
+surround everything with the try and catch block
+
+FileInputStream fileInputStream = new FileInputStream(filePath);
+            properties = new Properties();
+            properties.load(fileInputStream);
+
+ By creating this   readProperties() method we create a universal method that can read any properties file - we just
+ need to pass the filepath into this method.
+
+ * We will also need to be able to access each value of the properties file individually --> we will create
+ getProperties(String key) method that will retrieve value of the property based on the key that we pass as a param
+
+ public static String getProperties(String key){
+          return properties.getProperty(key);
+
+     }
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ 5. we will create a separate java class called CommonMethods.java to provide implementation for the methods that will
+ be reused throughout the project --> test/java/utils/CommonMethods.java
+
+ * one the first methods we will define webdriver in the common methods and we will use this driver throughout the
+ project = public static WebDriver driver;
+
+ * we will create OpenBrowserAndLaunchApplication() method . In this method first we need to identify which browser we
+ want to open -> to get this info we need to retrieve data from properties file. BUT  before we can use getProperties()
+ we actually need to use readProperties() method to READ the file first --> only after that we can GET the values.
+ Since the methods we wrote in configReader.java class are static we will invoke them using class name ==>
+ ConfigReader.readProperties()
+
+____________________________________________________________________________________________________________________
+  * to provide filepath to the config.properties file we need to understand that first part of the path (machine path)
+  will be different for each user of the project ; second part (project path) will be the same for each user of the
+  project.
+
+  System.getProperty("user.dir")  --> this function will give you the path to the project on your machine
+
+  * since the location of the config.properties file is constant we can specify this path as final (constant value).
+  We will create class Constants.java that will contain paths to all the constant files in the framework  ->
+
+  test/java/utils/Constants.java
+
+  This way it's easy to manage and the path to the config path will be the same across machines.
+
+___________________________________________________________________________________________________________________
+  * Once we read the file we will retrieve the data using ConfigReader.getProperties(key)
+
+  * we will pass the value retireved in the switch case and within each case we will use  WebDriverManager to set up and
+   initialize browser ==> WebDriverManager.chromedriver().setup();
+
+  * after this we will get the url == >  driver.get(ConfigReader.getProperties("url"));
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ 6. we will create directory testdata to profile all files that have test data like excel etc. -->
+ test/resources/testdata/excel files
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ 7. Following the page object model, we will create page classes for all screens available in the application -->
+ test/java/pages/pageClass.java
+
+ In the framework we implement page object model design pattern, according to this model we create separate page classes
+  for each page in the application. In each page class we define fields (variables) -locators with the key- and methods
+  --> these create OBJECT REPOSITORY
+
+  Example of locator in page class:
+
+   @FindBy(id="txtUsername")
+      public WebElement username;
+
+  * In order to be able to user Object Repositiry of the page class -> we need to call pageFactory (from selenium).
+   Because before we can use any of the locators or methods of the page --> they need to be initialized and we use
+   pageFactory to do that. After we have used pageFactory to initialize - with the object of the class we will call all
+   the locators and functions of the page class.
+
+  * We will create a constructor of the page class -> within the constructo we will call PageCatory --> that way during
+   the creation of the object of the page class all the field (locators) will be initialized.
+
+    public LoginPage(){
+           PageFactory.initElements(driver,this);
+       }
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  8. we will create PageInitializers.java class in order to initialize objects of the page classes in one place -->
+  /test/java/steps/PageInitializer.java
+
+  We will then extend PageInitializer class into the CommonMethods class --> since we extend CommonMethods into all
+  other classes within the project, through the multi-level inheritance pageInitializer will be inherited  into all
+  other classes that extend CommonMethods  --> CommonMethods extends PageInitializer
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  9. we will create runners classes in order to execute all the scenarious from one place, we will also control the
+  format of the scenario execution as well as which scenarios will be executed --> test/java/runners/ProgramTest.java
+
+  this has to be written outside of the class brackets:
+
+  @RunWith(Cucumber.class)
+  @CucumberOptions(
+          //we can specify full features folder or specific feature file
+          features = "src/test/resources/features/",
+          //we will specify full folder where all steps files are
+          glue = "steps",
+          dryRun = true,
+          monochrome = true,
+            tags = "@smoke"
+
+
+  )
+
+* features = --> provides path to the features folder or specific feature file
+
+* glue = --> glues necessary for executio folders, e.g. steps folders
+
+* dryRun =  -->  this will scan gherkin steps and provide unimplemented steps in the console if dryRun = true;
+to actually run the steps dryRun = false;
+
+* monochrome = true --> this will peovide only necessary info in the console output
+
+*   tags = "@smoke" --> this way we can execute specific snecarious labeled with the specified tag
+
+  tags = "@smoke and @regression" --> will execute only scenaroius that have both of the tags
+
+    tags = "@smoke or @regression"  --> will execute all the scenarious that have either one of the tags specified
+
+    @test --> this tag will indicate that this scenario is currently under development and we are working on developing
+    these scripts
+
+
+* we will create different runner classes to run test cases for the major test suits, like regression and smoke
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+10. we will create Hooks.java class to implement hooks = steps that will run for ALL scenarios in the framework both at
+the start and at the end of the scenario
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Data Driven TEsting (DDt) - we can execute one test case across multiple data sets
+
+-using scenario outline and examples table
+- using data table with keys
+- using data table without keys
+
+hybrid framework supports BDD and DDT = data driven testing and behavior driven development
+
+In order to implement DDT we will use SCENARIO OUTLINE: and we will provide test data as EXAMPLES:
+
+  Scenario Outline: Adding multiple employees
+
+  this is how we are providing the keys
+    And user provides "<firstName>" "<middleName>" and "<lastName>"
+
+       Examples:
+          |firstName|middleName|lastName|
+          |asel     |MS        |tolga   |
+          |yazgul   |MS        |kishan  |
+          |tarik    |MS        |mujeeb  |
+          |nassir   |MS        |volkan  |
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+11. we will add excel files --> test/resources/testdata/excel
+
+passing data from excel for data driven testing. WE will need these dependencies for working with excel files:
+
+ <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+REPORTS
+
+1. HTML extent spark report
+
+*We need this dependency"
+  <dependency>
+            <groupId>tech.grasshopper</groupId>
+            <artifactId>extentreports-cucumber6-adapter</artifactId>
+            <version>2.8.2</version>
+            <scope>test</scope>
+        </dependency>
+
+* we also need to create a separate properties file --> src/test/resources/config/extent.properties
+
+we will add this info to this properties file:
+
+
+extent.reporter.spark.start=true
+extent.reporter.spark.out=test-output-thread/SparkReport/Spark.html
+extent.reporter.spark.config=src/test/resources/config/extent-config.xml
+
+#extent.reporter.spark.out=test-output-thread/SparkReport/
+
+screenshot.dir=test-output/
+screenshot.rel.path=../
+extent.reporter.pdf.start=true
+extent.reporter.pdf.out=test output/PdfReport/ExtentPdf.pdf
+#basefolder.name=reports
+#basefolder.datetimepattern=d-MMM-YY HH-mm-ss
+extent.reporter.spark.vieworder=dashboard,test,category,exception,author,device,log
+systeminfo.os=Mac
+systeminfo.user=Margaryta
+systeminfo.build=1.1
+systeminfo.AppName=NaveenFramework
+
+* we will create a separate report config file extent-config.xml
+
+_________________________________________________________________________________________
+<?xml version="1.0" encoding="UTF-8"?>
+<extentreports>
+    <configuration>
+        <!-- report theme -->
+
+        <!-- standard, dark -->
+
+        <theme>dark</theme>
+        <!-- document encoding -->
+
+        <!-- defaults to UTF-8 -->
+
+        <encoding>UTF-8</encoding>
+        <!-- protocol for script and stylesheets -->
+
+        <!-- defaults to https -->
+
+        <protocol>http</protocol>
+        <!-- title of the document -->
+        <documentTitle>Extent</documentTitle>
+        <!-- report name - displayed at top-nav -->
+
+        <reportName>Grasshopper Report</reportName>
+        <!-- location of charts in the test view -->
+
+        <!-- top, bottom -->
+
+        <testViewChartLocation>bottom</testViewChartLocation>
+        <!-- custom javascript -->
+
+        <scripts>
+
+            <![CDATA[
+$(document).ready(function() {
+});
+]]>
+        </scripts>
+        <!-- custom styles -->
+        <styles>
+            <![CDATA[
+]]>
+        </styles>
+    </configuration>
+_________________________________________________________________________________________
+* finally, we will need to add an adaptor to the runner file under plugins:
+
+ plugin = {
+                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
+
+        }
+
+_______________________________________________________________________________________________
+PLUGIN FOR HTML REPORT & jason report
+
+*add this to hooks
+        plugin={
+                //for html report --> we will keep all the reports under the target folder
+                //all html reports will be under cucumber.html
+                //after html: we need to specify folder and name of the report file
+
+                "html:target/cucumber.html",
+
+                 //this plugin is for the jason report, again we will specify destination folder and report file name
+                                "json:target/cucumber.json"
+        }
+
+Add this to pom.xml for json report
+
+        <plugin>
+            <groupId>net.masterthought</groupId>
+            <artifactId>maven-cucumber-reporting</artifactId>
+            <version>5.7.0</version>
+            <executions>
+                <execution>
+                    <id>execution</id>
+                    <phase>test</phase>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                    <configuration>
+                        <projectName>SecondFrameSynt</projectName>
+                        <!-- optional, per documentation set this to "true" to bypass generation of Cucumber Reports entirely, defaults to false if not specified -->
+<!--                        <skip>false</skip>-->
+                        <!-- output directory for the generated report -->
+                        <outputDirectory>${project.build.directory}</outputDirectory>
+                        <!-- optional, defaults to outputDirectory if not specified -->
+                        <inputDirectory>${project.build.directory}</inputDirectory>
+                        <jsonFiles>
+                            <!-- supports wildcard or name pattern -->
+                            <param>**/*.json</param>
+                        </jsonFiles>
+                        <!-- optional, defaults to outputDirectory if not specified -->
+<!--                        <classificationDirectory>${project.build.directory}/classifications</classificationDirectory>-->
+<!--                        <classificationFiles>-->
+                            <!-- supports wildcard or name pattern -->
+<!--                            <param>sample.properties</param>-->
+<!--                            <param>other.properties</param>-->
+<!--                        </classificationFiles>-->
+<!--                        <parallelTesting>false</parallelTesting>-->
+                        <!-- optional, set true to group features by its Ids -->
+<!--                        <mergeFeaturesById>false</mergeFeaturesById>-->
+                        <!-- optional, set true to get a final report with latest results of the same test from different test runs -->
+<!--                        <mergeFeaturesWithRetest>false</mergeFeaturesWithRetest>-->
+                        <!-- optional, set true to fail build on test failures -->
+<!--                        <checkBuildResult>false</checkBuildResult>-->
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+
++++++++++++++++++++++++++++++++++++++++
+Screenshots
+
+* when we take screenshot java returns arrey of byte[]
+
+*  to store screenshots we will create directory at the project level, not just src level
+
+*  in cucumber scenario class holds the complete information of the execution
+   scenario class = pass fail names etc
+  in order to take the screenshot in cucumber using scenario class.Scenario class accepts only arrey of bytes
+   so we need to write a method that returns arrey of bytes so we can handle tha tportion using scenario class
+
+   <Code>
+
+   //to store screenshots we will create directory at the project level, not just src leve
+   //return is the arey of bytes
+       public static byte[] takeScreenshot(String fileName){
+           TakesScreenshot ts = (TakesScreenshot) driver;
+           byte[] picBytes = ts.getScreenshotAs(OutputType.BYTES);
+           File sourceFile = ts.getScreenshotAs(OutputType.FILE);
+
+           try {
+
+               //we use file utils to copy dile from source file to new file
+               //to avoid file being overriden we will add time by creating get time stamp method
+               FileUtils.copyFile(sourceFile, new File(Constants.SCREENSHOT_FILEPATH + fileName
+                       //this date format is preddefined
+                       + " " + getTimeStamp("yyyy-MM-dd-HH-mm-ss")+".png"));
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+           return picBytes;
+       }
+
+       public static String getTimeStamp(String pattern){
+           Date date = new Date();
+           //to format the date according to our choice we want to implement in this function
+           SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+           return sdf.format(date);
+       }
+
+__________________________________________________________
+Scenario class
+
+ *in cucumber scenario class holds the complete information of the execution
+   scenario class = pass fail names etc
+   in order to take the screenshot in cucumber using scenario class.Scenario class accepts only arrey of bytes
+    so we need to write a method that returns arrey of bytes so we can handle tha tportion using scenario class
+
+   we want to separate pass scrreenshtos in one folder and put all fail screenshots in other folder byte[] pic;
+
+public void end(Scenario scenario){
+
+
+        if(scenario.isFailed()){
+            pic=takeScreenshot("failed/"+scenario.getName());
+        }else{
+            pic= takeScreenshot("passed/"+scenario.getName());
+        }
+        //this will attach picture to the report
+
+        scenario.attach(pic,"image/png", scenario.getName());
+
+        tearDown();}
+
+}
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+in order to be able to execute all the test from one place --> specifically pom.xml file --> we need to add
+
+maven surefile plugin
+
+This plugin will accomplish build management
+
+We will search for maven sureile plugin and on the website go to Using Suite XML Files, get the code and add it after
+dependencies in the pom.xml in the <build><plugins> add plugins here</plugins></build>
+
+  <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M6</version>
+            <configuration>
+<!--                change suiteXMLFile to includes/include/-->
+<!--                also add testFailureIgnore-->
+<!--                includes means what files we want to execute, here we will provide the path to the file,
+specifically runner file
+    we will start with **/*HTSMTest.java
+    **  - equals our project directory
+    /*  - equals directory inder the project directory
+    runnerClass.jave - we finish with the runner class file name-->
+
+                <includes>
+                    <include>**/*HTSMTest.java</include>
+                </includes>
+                <testFailureIgnore>true</testFailureIgnore>
+            </configuration>
+        </plugin>
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+executing pom.xml from terminal
+
+-navigate tot he project directory
+- mvn clean --> run this command first to clean the project
+- mvn test  -> to run from terminal
+
+in order to override the tag you specified in your runner class from terminal:
+-- mvn clean verify -Dcucumber.filter.tags="@test"
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ASSERTIONS
+
+with assertions we compare actual results to the expected results
+
+    if assertion is passed it will not give you any information and will execute our code
+    if assertion is failed it will give you an error with comparison
+
+
+ In tEstNG we will use class Assert with static methods that we will call by the class name:
+
+  ***   Assert.assertEquals(actualTabs,expectedTabs);
+
+  ***    Assert.assertTrue(expectedTabs.equals(actualTabs));
+
+  ***   Assert.assertFalse()
+
+
+WE have hard assertion and soft assertion:
+
+Hard assertion: if hard assertion fails the rest of the following code will not execute
+
+ Soft assertion: if soft assertion fails, test case will fail but the remaining code lines will execute
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  API automation with Rest Assured
+
+  ADD: rest assured dependency + json dependency
+
+  Pre condition - prepare the request, request specification
+
+  given - prepare the request
+  when - hitting the endpoint (sending the request)
+  then - expected response
+
+  We will be using keywords given / when / then to create call requests in rest assured
+
+  baseURI = baseURL
+
+
+////////////////
+
+mvn starting point of the project  -> surefire plugin will start the execution -> this will have the runner class
+
+add the <configuration> tag to specify runner class
+
+ <includes>
+<!--                    <include>**/APIRunner.java</include>-->
+                    <include>**/*${TestRunnerVariableName}</include>
+                </includes>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

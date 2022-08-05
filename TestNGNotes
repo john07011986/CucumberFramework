@@ -1,0 +1,582 @@
+TestNG
+
+is a testing tools that helps us to structure our test cases using different annotations. It is a unit test framework
+designed for testing needs, it is designed to cover all categories of test: unit, functional, integration, end-to-end
+etc.
+
+It is derived from Junit and Nunit with additional of other functionalities, which makes it more powerful than any other
+ unit testing framework. Open source automation testing framework.
+
+ TestNG allows parallel execution, test dependencies, set execution order, divide the test in groups by smoke, sanity,
+ regresttion and execute the group test only. THe best feature of testNG over jnit is the HTMl report
+
+ Benefits of TestNG:
+ -reports
+
+ -annotations - make it simple to manage and control the execution of test cases
+ e.g. @Test, @Before, @BeforeClass
+
+ -parallel testing - we execute n number of test cases in parallel, instead of sequential order.
+ purpose of parallel testing - time needed to execute cases
+
+ -batch execution - we can execute certain tet cases in a selected batch - e.g. regression or smoke
+
+ -assertions :
+ 1. hard assertions
+ 2. soft assertions
+
+ - data parametrization
+
+ - it can be integrated with cucumber, maven and selenium
+
+   ________________________________________________________________________________________
+  TEstNG Architecture:
+
+  packages = test suits
+  java classes = test cases/ 1 class = 1 test case
+  inside the class = methods are test case steps / 1 method = 1 step
+
+  ________________________________________________________________________________________
+  TEstNG XML file
+
+  WE use XML file to execute multiple test cases as a suite  -> gives us control over the whole project
+
+  To create testNG.xml install plugin -> create TEstNG.xml . Then click on the test case class and option to create
+  testNG.xml will be available.
+
+  - !!!!! when we create a new testing.xml file it automatically overrides the existing testing.xml class -> before
+  creating a new testing.xml class we should rename the existing one in order to keep it
+
+ Within testNG.xml tags will go like this:
+
+ <suit>
+      <test>
+         <package>
+          <classes>all test cases
+               <class>each test case
+                     <methods>test case steps
+                             <include> each step</include>
+                     </methods>
+               </class>
+          </classes>
+          </package>
+      </test>
+ </suit>
+
+
+ _______________________SAMPLE TESTNG.XML________________________________-
+
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+ <suite name="All Test Suite">
+     <test verbose="2" preserve-order="true" name="Here Specify test run name">
+
+         <classes>
+         //each class = 1 test case
+         //if class is in the package --> name="package.class"
+
+             <class name="ui.LoginTest">
+             //test case steps are methods
+                 <methods>
+                 //each step
+                     <include name="loginTes"/>
+                     <include name="logoutTestt"/>
+                 </methods>
+             </class>
+         </classes>
+     </test>
+     <test verbose="2" preserve-order="true" name="/Users/margaryta/code/YoutubeTestNG/src/test/java/ui/Groups.java">
+         <classes>
+             <class name="ui.Groups">
+                 <methods>
+                     <include name="loginTest"/>
+                     <include name="dloginTest"/>
+                     <include name="glogoutTest"/>
+                 </methods>
+             </class>
+         </classes>
+     </test>
+ </suite>
+ ________________________________________________________________________________________
+
+
+   -  if we just specify class file  -> all the steps within the class will be executed:
+      <class name="ui.LoginTest">
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   - if we want to specify only specific methods within  the class that should be executed - we will used method tag -->
+   include tag:
+
+   <class name="class01.BasicAnnotations">
+               <methods>
+                   <include name="firstTest"/>
+               </methods>
+                </class>
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  - if we want to exclude some methods from the execution we will used exclude tag :
+
+    <class name="class01.BasicAnnotations">
+              <methods>
+                  <exclude name="secondTest"></exclude>
+              </methods>
+            </class>
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   - we can go for class based test execution. In this case we will skip <package> tag and will go for the <classes> and
+   <class> tag.
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   - we can go for package based execution and in this case we will for <packages><package> and specify package name:
+   this will execute all classes within the package
+
+   <suite name="All Test Suite">
+       <test verbose="2" preserve-order="true" name="/Users/margaryta/code/TestNGProject/src/test/java/class01">
+           <packages>
+               <package name="class01"></package>
+           </packages>
+       </test>
+   </suite>
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  - we can also combine class based and package based execution within one xml file:
+
+  <suite name="All Test Suite">
+      <test verbose="2" preserve-order="true" name="/Users/margaryta/code/TestNGProject/src/test/java/class01">
+          <packages>
+              <package name="class01"></package>
+          </packages>
+          <classes>
+              <class name="class02.class02"></class>
+          </classes>
+      </test>
+  </suite>
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  - if we need to run the same class multiple time son my xml file we need to create a second <test> tag   -> we need to
+  make sure name attributes are different for each test tag:
+
+  <suite name="All Test Suite">
+      <test verbose="2" preserve-order="true"
+            name="test1">
+          <classes>
+              <class name="class01.Priority">
+              </class>
+          </classes>
+      </test>
+      <test verbose="2" preserve-order="true"
+            name="test2">
+          <classes>
+              <class name="class01.Priority">
+              </class>
+          </classes>
+      </test>
+  </suite>
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ ________________________________________________________________________________________
+  To enable report generation:
+
+  1. Modify run configuration ( on package pr class)
+  2. Listeners :
+
+  org.testing.reporters.FailedReporter
+   org.testing.reporters.EmailedReporter
+
+   3. can also specify output folder for the reports
+
+
+  ________________________________________________________________________________________
+  1. Annotations
+
+  We do not need main method
+
+  Annotation is a tag that provides additional informaton about class, interface or method in testNG.
+  Annotations are used to keep the structure of the test cases
+
+  --  @Test
+  we wright all test cases under this annotation. If @Test is not added - that test case won't be executed.
+
+
+  by default test cases under @Test annotation will be executed in alphabetical order based on the first letter of the
+  method name.
+
+ ************* Before & After ****************************************************************
+
+ There us a hirarchy of before&After tag execution:
+
+ first will execute : @BeforeSuite @AfterSuite
+ second will execute : @BeforeTest @AfterTest
+ third will execute: @BeforeClass @AfterClass
+ last will execure: @BeforeMethod @AfterMethod
+ @Test
+
+
+ !!!!!important - we can follow the order of the execution of @before @After tag by following the testNG.xml file -> as
+ many as there is <suite> tag in xml files --> that many time @BeforeSuite & @After Suite tag will execute
+ as many as there is <class> tags - that many times @BeforeClass and @AfterClass tags will execute
+  ________________________________________________________________________________________
+
+  -- @BeforeMethod
+
+  we can put the precondition methods that need to be executed before the @Test case execution.
+
+  this will run before every test case @Test is executed
+
+  -- @AfterMethod
+
+  this will run after each @Test method is executed
+
+
+  +++Example+++
+
+
+  @BeforeMethod
+  @Test
+  @AfterMethod
+   @BeforeMethod
+   @Test
+   @AfterMethod
+
+   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ -- @AfterTest
+
+ this will run after the test case suite (class) -> so if we have multiple test cases it will run once after all the test
+  casesare executed
+
+
+ --@BeforeTest
+
+ this will run once before the test case suite (class)
+
+  +++Example+++
+
+ @BeforeTest
+ @Test
+ @Test
+ @Test
+ @AfterTest
+
+   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ -- @AfterClass
+
+ this will run one time after the whole class is executed  -
+
+ --@BeforeClass
+
+ this will run one time before the whole class is executed  - this can be used to read excel file before the execution of
+  the test cases OR to connect to the database
+
+ @BeforeClass
+ @BeforeMethod
+ @Test
+ @AfterMethod
+ @BeforeMethod
+ @Test
+ @AfterMethod
+ @AfterClass
+
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  2. Priority
+
+  By default priority for all the test cases is set =0, meaning all the test cases will be executed in alphabetical order
+
+
+  In order to set priority we will set it :
+  @Test(priority=1)
+
+  THen, test cases will be executed based on the priority index
+
+  ___________________________________________________________________________________________________
+ Additional attribute that can be added is description -> if description is provided it will be printed in the console
+ with the test case resutls
+
+  @Test(priority=1, description = "This is description to display")
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3. enable/disable
+
+ @Test(enable=true) - to eanble test case execution  - this is the default for any case and we don't need to specify it
+ @Test(enable=false) - to eanble test case execution
+
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4. DependsOn
+
+ @Test
+     public  void login(){
+         System.out.println("this is a login test");
+     }
+
+     @Test(dependsOnMethods = "login")
+     public void verificationOfDashboard(){
+
+         System.out.println("this is dashboard");
+     }
+
+     if means that the verificationOfDashboard() depends on the login() test. if the login() test fails the
+     verificationOfDashboard() step will be skipped
+
+     BUT if we want to force the execution of the test case EVENe if the dependent case is failing, we need to set
+     alwaysRun=true
+
+      @Test(dependsOnMethods = {"login", "logout"}, alwaysRun=true)
+
+
+     we can also specify multiple dependency:
+     @Test(dependsOnMethods = {"login", "logout"})
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 5. Hard Assertion
+
+ Unlike with soft assertion we do not need to create an object of the class and we ca just call Assert class methods.
+
+  in order to use the assertion we use:
+
+  Assert.assertionType();
+
+  Assert.AssertTrue();  - is used for the verification of boolean values. If boolean =true test will pass, if
+  boolean=false test will fail
+
+  Assert.AssertEquals(String1, String2);  if both values equal it's a pass, if they are not equal assertion will fail
+
+ !!!!!!!!!!!  If the test case has multiple assertions, and the 1st assertion fails --> the test case execution is
+ terminated and test
+  case is failed.
+
+  Assert.fail() - this will intentionally fail the test case
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 6. Soft Assertion
+
+ !!!!!  If we have multiple executions and we want ALL the assertions to be checked even if one of the fails --> we will
+ use soft assertion.
+
+
+ First - we need to create an object of the SoftAssertions class:
+   SoftAssert soft=new SoftAssert();
+
+
+   soft.assertEquals(text,expectedText);
+   soft.assertTrue(displayed);
+
+  On we declared all the other soft asserts and they have been compiled - in order to see the outcome on the console we
+  should always include:
+    soft.assertAll();
+
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 7. Grouping
+
+ = test level grouping (method level)
+
+   @Test(groups = {"regression", "smoke"})  -> if we have more than one group assigned to the specific test case
+
+   @Test(groups = "smoke")  -> is only one group is assigned to this test case
+
+  = class level grouping
+
+  We will define  test group attribute above the class name
+
+   @Test(groups = "smoke")
+   public class Groups{
+   methods
+   methods
+   }
+
+ == also, we need to add groups annotation to all @Before and @After tagged methods relevant to the test case execution:
+  @BeforeMethod(groups = "regression") OR add (alwaysRun - true) for before and after methods
+
+
+ IN THE XML FILE:
+
+  - we can use both <include> and <exclude> tags
+  -we need to add <groups><run><include> tags before the <classes> tag. Also, we need to add
+
+ <suite name="All Test Suite">
+     <test verbose="2" preserve-order="true"
+           name="group testing">
+        <groups>
+            <run>
+                <include name="smoke"></include>
+                <include name="regression"></include>
+            </run>
+        </groups>
+
+         <classes>
+             <class name="class01.SoftAssertion">
+             </class>
+         </classes>
+     </test>
+
+ </suite>
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ PAREMETERs
+
+ We can add @Parameters tag on the class leve, test level and suite level.
+
+ We can add @Parameneters tag to the test case java file and provide the same values we will specify in the xml file.
+ Further, we will provide corresponding variables of the appropriate data type within the signature of the method.
+ Lastly, we will pass the data from the xml file
+
+ - for java class: NOTE: we are providing @Parameters tag before on the CLASS LEVEL
+
+   @BeforeClass
+     @Parameters({"browser", "url"})
+     public void beforeClassTest(String browser, String url){
+         System.out.println("i am before class");
+     }
+
+ - for xml file: NOTE: since we specified @PArameters tag ont he class level - we need to specify it on the class level
+ in xml file as well
+
+ <suite name="All Test Suite">
+     <parameter name="browser" value="chrome"></parameter>
+     <parameter name="url" value="url.com"></parameter>
+     <test verbose="2" preserve-order="true"
+           name="group testing">
+         <classes>
+             <class name="class01.SoftAssertion">
+             </class>
+         </classes>
+     </test>
+
+ </suite>
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ LISTENERS:
+
+ IS USED when we want to execute some code block only in certain condition ( if  test case only fails or only passes or
+ skipped).
+
+
+ Implementation:
+
+ == We will create a seprate java file "Listeners" and extend ITestListener  -> this is an interface that will allow us
+ to
+ implement conditional methods.
+
+ == we will make a connection to the listeners class using xml file:
+ we will definte <listeners> tag just under the <suite> case and then write the classes we want the listener to listen to
+
+ == we can listen to classes that are located in different packages as long as we specify them in the xml file
+
+ <suite name="All Test Suite">
+ //here we specify listeners under the suite tag
+     <listeners>
+     //here in the class-name we provide the location of the listeners class
+         <listener class-name="class01.listeners"></listener>
+     </listeners>
+     <parameter name="browser" value="chrome"></parameter>
+     <parameter name="url" value="url.com"></parameter>
+     <test verbose="2" preserve-order="true"
+           name="group testing">
+           //here we specify all the classes we want the listener to listen to
+         <classes>
+             <class name="class01.SoftAssertion">
+             </class>
+         </classes>
+     </test>
+
+ </suite>
+
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ DATA PROVIDER:
+
+ It is used for data driven testing, but mostly when we have small dayaset, not hundreds of rows.
+
+ == first thing = we need the dataset --> we use @DataProvider annotation for it
+ == we need to specify the name of the @DataProvider
+ == we will use Object 2D array and provide testing data
+
+ @DataProvider(name = "credentials")
+
+     public Object [][] data(){
+         Object [] [] login={
+                 {"admin", "asd","Invalid Credentials"},
+                 {"Admin", "","Invalid password"},
+                 {"", "asd","Invalid username"},
+         };
+         return login;
+     }
+
+
+  ==  within the @TEst annotation we need to provide the name of @DataProvider in order to link them.
+
+  == we don't need to use the loop statement --> @DataProvider will run through the data set automatically
+
+  == we also need to provide variable names and data types of the test data from @DataProvider in the signature of the
+  test case method:
+
+  @Test(dataProvider ="credentials" )
+      public void loginTest(String username, String password, String message){
+      System.out.println(username);
+      System.out.println(password);
+      System.out.println(message);
+  }
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ PARALLEL EXECUTION:
+
+ WE can execute out test cases in parallel
+
+ == to enable parallel testing int he xml we need to specify parallel variable in the <test> tag based on the things we
+ want to run in paralle - class, suite, test ext
+
+ == then, we need to specify thread-count in the <test>tag  -> we will specify thread-count based on the number of
+ methods or classes or test that we want to execute in paralle
+
+ <suite name="All Test Suite">
+
+     <test verbose="2" preserve-order="true"
+     //here we specified what units we want to run in paralle and the thread count as well
+           name="group testing" parallel="classes" thread-count="2">
+         <classes>
+             <class name="class01.SoftAssertion">
+             <class name="class01.DependsOn">
+             </class>
+         </classes>
+     </test>
+
+ </suite>
+
+
+
+
+
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ For TEstNG we need following dependencies:
+
+ <!-- https://mvnrepository.com/artifact/org.testng/testng -->
+         <dependency>
+             <groupId>org.testng</groupId>
+             <artifactId>testng</artifactId>
+             <version>6.14.3</version>
+             <scope>test</scope>
+         </dependency>
+
+         <!-- https://mvnrepository.com/artifact/com.beust/jcommander -->
+         <dependency>
+             <groupId>com.beust</groupId>
+             <artifactId>jcommander</artifactId>
+             <version>1.48</version>
+         </dependency>

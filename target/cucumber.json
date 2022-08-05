@@ -1,0 +1,77 @@
+[
+  {
+    "line": 1,
+    "elements": [
+      {
+        "line": 3,
+        "name": "",
+        "description": "",
+        "type": "background",
+        "keyword": "Background",
+        "steps": [
+          {
+            "result": {
+              "status": "undefined"
+            },
+            "line": 4,
+            "name": "a JWT is generated",
+            "match": {},
+            "keyword": "Given "
+          }
+        ]
+      },
+      {
+        "start_timestamp": "2022-08-05T01:02:47.213Z",
+        "line": 7,
+        "name": "Adding an employee",
+        "description": "",
+        "id": "a;;-the-api-scenarios;adding-an-employee",
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "duration": 490000,
+              "status": "skipped"
+            },
+            "line": 8,
+            "name": "a request is prepared to create an employee",
+            "match": {},
+            "keyword": "Given "
+          },
+          {
+            "result": {
+              "duration": 216000,
+              "status": "skipped"
+            },
+            "line": 9,
+            "name": "a post call is made to create an employee",
+            "match": {},
+            "keyword": "When "
+          },
+          {
+            "result": {
+              "duration": 578000,
+              "status": "skipped"
+            },
+            "line": 10,
+            "name": "the status code for the created employee is 200",
+            "match": {},
+            "keyword": "Then "
+          }
+        ],
+        "tags": [
+          {
+            "name": "@api"
+          }
+        ]
+      }
+    ],
+    "name": "A;; the API scenarios",
+    "description": "",
+    "id": "a;;-the-api-scenarios",
+    "keyword": "Feature",
+    "uri": "file:src/test/resources/features/APIWorkflo.feature",
+    "tags": []
+  }
+]
