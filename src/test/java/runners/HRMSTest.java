@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
         //we will specify full folder where all steps files are
         glue = "steps",
         dryRun = false,
-        monochrome = true,
+//        monochrome = true,
 
 
 
